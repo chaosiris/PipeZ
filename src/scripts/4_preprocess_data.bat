@@ -36,23 +36,6 @@ if not defined PYTHON_CMD (
     exit /b 1
 )
 
-REM Read the settings from SETTINGS.txt
-for /f "tokens=1,2 delims==" %%a in (SETTINGS.txt) do (
-    if "%%a"=="ESPEAK_LANGUAGE_CODE" set "language_code=%%b"
-    if "%%a"=="CHECKPOINT_SAMPLE_RATE" set "sample_rate=%%b"
-)
-
-REM Ensure both settings are read
-if not defined language_code (
-    echo ESPEAK_LANGUAGE_CODE not found in SETTINGS.txt. Please restart the process by redownloading the checkpoint.
-    exit /b 1
-)
-
-if not defined sample_rate (
-    echo SAMPLE_RATE not found in SETTINGS.txt. Please restart the process by redownloading the checkpoint.
-    exit /b 1
-)
-
 REM Set the path to the training_data folder
 set "training_data=training_data"
 set "metadata_file=%training_data%\metadata.csv"
@@ -118,7 +101,24 @@ for /f "tokens=1* delims=|" %%a in ('type "%metadata_file%"') do (
 
 echo Sorting completed.
 
+REM Read the settings from SETTINGS.txt
+for /f "tokens=1,2 delims==" %%a in (SETTINGS.txt) do (
+    if "%%a"=="ESPEAK_LANGUAGE_CODE" set "language_code=%%b"
+    if "%%a"=="CHECKPOINT_SAMPLE_RATE" set "ckpt_sample_rate=%%b"
+)
+
+REM Ensure both settings are read
+if not defined language_code (
+    echo ESPEAK_LANGUAGE_CODE not found in SETTINGS.txt. Please restart the process by redownloading the checkpoint.
+    exit /b 1
+)
+
+if not defined ckpt_sample_rate (
+    echo SAMPLE_RATE not found in SETTINGS.txt. Please restart the process by redownloading the checkpoint.
+    exit /b 1
+)
+
 REM Call the Python script to unify sample rates
-%PYTHON_CMD% "%unify_script%" "%sample_rate%"
+%PYTHON_CMD% "%unify_script%" "%ckpt_sample_rate%"
 
 pause
