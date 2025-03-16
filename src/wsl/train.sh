@@ -25,9 +25,6 @@ if [ -z "$PYTHON_CMD" ]; then
     exit 1
 fi
 
-# Ensure SETTINGS.txt is in LF EoL encoding sequence
-dos2unix SETTINGS.txt
-
 # Read the settings from SETTINGS.txt
 while IFS="=" read -r key value; do
     if [ "$key" == "CHECKPOINT_FILE" ]; then
@@ -54,17 +51,21 @@ echo "Current directory: $(pwd)"
 echo "Using checkpoint file: downloaded_checkpoint/$checkpoint_file"
 echo "Starting the training process..."
 
+# Allow PosixPath to be safely loaded
+echo "Adding PosixPath"
+$PYTHON_CMD -c "import torch, pathlib; torch.serialization.add_safe_globals([pathlib.PosixPath])"
+
 # Preprocess the 'final' folder into Piper's ljspeech format
-python -m piper_train \
+$PYTHON_CMD -m piper_train \
     --dataset-dir preprocessed_data \
     --accelerator gpu \
     --devices 1 \
-    --batch-size 10 \
+    --batch-size 1 \
     --validation-split 0.0 \
     --num-test-examples 0 \
     --max_epochs 30000 \
     --resume_from_checkpoint "$(pwd)/downloaded_checkpoint/$checkpoint_file" \
-    --checkpoint-epochs 25 \
+    --checkpoint-epochs 2 \
     --precision 32
 
 echo "Process completed"

@@ -10,8 +10,7 @@ echo "Current directory: $(pwd)"
 if [ -d "piper" ]; then
     read -p "Piper is already installed. Do you want to re-install it? (y/n): " choice
     if [ "$choice" != "y" ]; then
-        echo "You chose not to reinstall. Exiting the installation process."
-        exit 0
+        echo "You chose not to reinstall. Proceeding with the installation process..."
     else
         echo "You chose to reinstall. Removing existing Piper installation..."
         rm -rf piper
@@ -70,16 +69,18 @@ $PYTHON_CMD -m venv .venv
 
 # Activate virtual environment
 source .venv/bin/activate
+sudo apt update
+sudo apt install dos2unix
+sudo apt install python3-dev
+sudo apt install build-essential
 
 # Update pip and install packages
 echo "Enforcing pip==24.0 and installing dependency packages..."
 $PYTHON_CMD -m pip install --upgrade pip==24.0 wheel setuptools
-$PYTHON_CMD -m pip install dos2unix
-$PYTHON_CMD -m pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+$PYTHON_CMD -m pip install "torch<2.6.0" torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
 $PYTHON_CMD -m pip install -r requirements.txt
 $PYTHON_CMD -m pip install numpy==1.24.4
 $PYTHON_CMD -m pip install torchmetrics==0.11.4
-$PYTHON_CMD -m pip install pytorch-lightning==1.9.5
 $PYTHON_CMD -m pip install build
 $PYTHON_CMD -m python -m build
 $PYTHON_CMD -m pip install -e .
